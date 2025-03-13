@@ -153,14 +153,12 @@ deal_ymd_list = [
     if not (y == current_year and m > current_month)  # 미래 데이터(2025년 4월 이후)는 제외
 ]
 
-# 환경 변수에서 API 키 가져오기
-service_key = os.environ.get("SERVICE_KEY")
-
-# 🔍 디버깅: API 키가 불러와지는지 확인
-if service_key:
+# ✅ Streamlit Cloud Secrets에서 API 키 가져오기
+if "service_key" in st.secrets:
+    service_key = st.secrets["service_key"]
     st.write("✅ API 키가 정상적으로 로드되었습니다!")
 else:
-    st.error("⚠ API 키를 불러올 수 없습니다.(1) GitHub Secrets 설정을 확인하세요!")
+    st.error("⚠ API 키를 불러올 수 없습니다. Streamlit Secrets 설정을 확인하세요!")
     st.stop()  # 실행 중단
 
 if address and df is not None:
