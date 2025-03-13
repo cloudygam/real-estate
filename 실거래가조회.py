@@ -152,10 +152,16 @@ deal_ymd_list = [
     for m in range(1, 13)  # 1월~12월 반복
     if not (y == current_year and m > current_month)  # 미래 데이터(2025년 4월 이후)는 제외
 ]
+
+# 환경 변수에서 API 키 가져오기
 service_key = os.environ.get("SERVICE_KEY")
 
-if not service_key:
-    raise ValueError("⚠ API 키가 설정되지 않았습니다. GitHub Secrets를 확인하세요.")
+# 🔍 디버깅: API 키가 불러와지는지 확인
+if service_key:
+    st.write("✅ API 키가 정상적으로 로드되었습니다!")
+else:
+    st.error("⚠ API 키를 불러올 수 없습니다. GitHub Secrets 설정을 확인하세요!")
+    st.stop()  # 실행 중단
 
 if address and df is not None:
     region, jibun = extract_region_jibun(address)
