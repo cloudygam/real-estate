@@ -1,0 +1,5 @@
+streamlit
+pandas
+requests
+fuzzywuzzy
+python-Levenshtein  # fuzzywuzzy가 필요로 하는 패키지
