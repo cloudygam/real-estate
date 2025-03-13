@@ -158,8 +158,11 @@ if "service_key" in st.secrets:
     service_key = st.secrets["service_key"]
     st.write("✅ API 키가 정상적으로 로드되었습니다!")
 else:
-    st.error("⚠ API 키를 불러올 수 없습니다. Streamlit Secrets 설정을 확인하세요!")
+    st.error("⚠ API 키를 불러올 수 없습니다.(2) Streamlit Secrets 설정을 확인하세요!")
     st.stop()  # 실행 중단
+
+st.write("🔍 현재 Secrets 데이터:", st.secrets.to_dict())
+
 
 if address and df is not None:
     region, jibun = extract_region_jibun(address)
