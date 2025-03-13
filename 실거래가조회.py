@@ -160,7 +160,7 @@ service_key = os.environ.get("SERVICE_KEY")
 if service_key:
     st.write("✅ API 키가 정상적으로 로드되었습니다!")
 else:
-    st.error("⚠ API 키를 불러올 수 없습니다. GitHub Secrets 설정을 확인하세요!")
+    st.error("⚠ API 키를 불러올 수 없습니다.(1) GitHub Secrets 설정을 확인하세요!")
     st.stop()  # 실행 중단
 
 if address and df is not None:
