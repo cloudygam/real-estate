@@ -13,8 +13,7 @@ from fuzzywuzzy import process
 
 # ✅ 기본 CSV 파일의 로컬 경로 (사용자가 직접 설정 가능)
 LOCAL_CSV_PATH = "C:/Users/user/PycharmProjects/실거래가조회/.venv/Scripts/법정동코드_default.csv"
-# 🔍 현재 Secrets 데이터 출력
-st.write("🔍 현재 Secrets 데이터:", st.secrets.to_dict())
+
 
 @st.cache_data
 def load_data(uploaded_file):
@@ -154,17 +153,13 @@ deal_ymd_list = [
     if not (y == current_year and m > current_month)  # 미래 데이터(2025년 4월 이후)는 제외
 ]
 
-# ✅ Streamlit Cloud Secrets에서 API 키 가져오기
-st.write("🔍 현재 Secrets 데이터:", st.secrets.to_dict())
-
-if "service_key" in st.secrets:
-    service_key = st.secrets["service_key"]
-    st.write("✅ API 키가 정상적으로 로드되었습니다!")
+# ✅ 중첩된 구조에서 API 키 가져오기
+if "secrets" in st.secrets and "service_key" in st.secrets["secrets"]:
+    service_key = st.secrets["secrets"]["service_key"]
+    st.write("✅ API 키가 정상적으로 로드되었습니다:", service_key[:5] + "*****")
 else:
-    st.error("⚠ API 키를 불러올 수 없습니다.(2) Streamlit Secrets 설정을 확인하세요!")
+    st.error("⚠ API 키를 불러올 수 없습니다. Streamlit Secrets 설정을 확인하세요!")
     st.stop()  # 실행 중단
-
-
 
 if address and df is not None:
     region, jibun = extract_region_jibun(address)
