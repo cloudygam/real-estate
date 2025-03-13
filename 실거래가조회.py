@@ -156,7 +156,7 @@ deal_ymd_list = [
 # ✅ 중첩된 구조에서 API 키 가져오기
 if "secrets" in st.secrets and "service_key" in st.secrets["secrets"]:
     service_key = st.secrets["secrets"]["service_key"]
-    st.write("✅ API 키가 정상적으로 로드되었습니다:", service_key[:5] + "*****")
+    #st.write("✅ API 키가 정상적으로 로드되었습니다:", service_key[:5] + "*****")
 else:
     st.error("⚠ API 키를 불러올 수 없습니다. Streamlit Secrets 설정을 확인하세요!")
     st.stop()  # 실행 중단
