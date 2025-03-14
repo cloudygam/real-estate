@@ -9,10 +9,10 @@ from datetime import datetime, timedelta
 from fuzzywuzzy import process
 
 # ✅ Airtable API 설정 (Streamlit Secrets에서 불러오기)
-if "airtable_api_key" in st.secrets:
-    airtable_api_key = st.secrets["airtable_api_key"]
-    airtable_base_id = st.secrets["airtable_base_id"]
-    airtable_table_name = st.secrets["airtable_table_name"]
+if "secrets" in st.secrets and "airtable_api_key" in st.secrets["secrets"]:
+    airtable_api_key = st.secrets["secrets"]["airtable_api_key"]
+    airtable_base_id = st.secrets["secrets"]["airtable_base_id"]
+    airtable_table_name = st.secrets["secrets"]["airtable_table_name"]
 else:
     st.error("⚠ Airtable API 키가 설정되지 않았습니다. Streamlit Secrets에서 확인하세요!")
     st.stop()
