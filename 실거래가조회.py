@@ -61,8 +61,8 @@ def fetch_airtable_data():
 
     if data_list:
         df = pd.DataFrame(data_list)
-        st.write("📋 Airtable에서 가져온 데이터:")
-        st.dataframe(df)  # ✅ 최종 데이터 출력
+        #st.write("📋 Airtable에서 가져온 데이터:")
+        #st.dataframe(df)  # ✅ 최종 데이터 출력
         return df
     else:
         st.error("⚠ Airtable에서 가져온 데이터가 없습니다.")
@@ -194,7 +194,7 @@ uploaded_file = st.file_uploader("법정동 코드 CSV 파일을 업로드하세
 df = fetch_airtable_data()
 
 if df is not None:
-    st.write(f"📋 최종 로드된 법정동 코드 데이터 (총 {len(df)}개):")
+    #st.write(f"📋 최종 로드된 법정동 코드 데이터 (총 {len(df)}개):")
     st.dataframe(df)
 else:
     st.error("⚠ 법정동 코드 데이터를 가져올 수 없습니다.")
@@ -207,7 +207,7 @@ current_month = datetime.today().month  # 3
 # 최근 5년간의 데이터를 가져오도록 리스트 생성
 deal_ymd_list = [
     f"{y}{m:02d}"
-    for y in range(current_year - 5, current_year + 1)  # 최근 5년 (2020 ~ 2025)
+    for y in range(current_year - 3, current_year + 1)  # 최근 3년 (2022 ~ 2025)
     for m in range(1, 13)  # 1월~12월 반복
     if not (y == current_year and m > current_month)  # 미래 데이터(2025년 4월 이후)는 제외
 ]
