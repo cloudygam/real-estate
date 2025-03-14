@@ -194,7 +194,7 @@ uploaded_file = st.file_uploader("법정동 코드 CSV 파일을 업로드하세
 df = fetch_airtable_data()
 
 if df is not None:
-    st.write(f"📋 최종 로드된 법정동 코드 데이터 (총 {len(df)}개):")
+    st.write(f"📋 최종 로드된 법정동 코드 데이터: 총 {len(df)}개")
     #st.dataframe(df)
 else:
     st.error("⚠ 법정동 코드 데이터를 가져올 수 없습니다.")
