@@ -48,7 +48,7 @@ def fetch_airtable_data():
             break  # 모든 데이터 가져왔으면 종료
 
     # ✅ 총 개수 확인
-    st.write(f"📊 Airtable에서 가져온 총 데이터 개수: {len(all_records)}개")
+    #st.write(f"📊 Airtable에서 가져온 총 데이터 개수: {len(all_records)}개")
 
     # ✅ 변환된 데이터 저장
     data_list = []
