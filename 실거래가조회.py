@@ -8,32 +8,62 @@ import re
 from datetime import datetime, timedelta
 from fuzzywuzzy import process
 
-#실행할 때 터미널에서 "streamlit run C:\Users\user\PycharmProjects\실거래가조회\.venv\Scripts\실거래가조회.py" 입력
+# ✅ Airtable API 설정 (Streamlit Secrets에서 불러오기)
+if "airtable_api_key" in st.secrets:
+    airtable_api_key = st.secrets["airtable_api_key"]
+    airtable_base_id = st.secrets["airtable_base_id"]
+    airtable_table_name = st.secrets["airtable_table_name"]
+else:
+    st.error("⚠ Airtable API 키가 설정되지 않았습니다. Streamlit Secrets에서 확인하세요!")
+    st.stop()
+
+# ✅ Airtable API URL 설정
+airtable_url = f"https://api.airtable.com/v0/{airtable_base_id}/{airtable_table_name}"
 
 
-# ✅ 기본 CSV 파일의 로컬 경로 (사용자가 직접 설정 가능)
-LOCAL_CSV_PATH = "C:/Users/user/PycharmProjects/실거래가조회/.venv/Scripts/법정동코드_default.csv"
+# ✅ Airtable API 호출 함수
+def fetch_airtable_data():
+    headers = {"Authorization": f"Bearer {airtable_api_key}"}
+    try:
+        response = requests.get(airtable_url, headers=headers)
+        response.raise_for_status()
+        records = response.json().get("records", [])
 
+        data = []
+        for record in records:
+            fields = record.get("fields", {})
+            data.append({
+                "법정동명": fields.get("법정동명", ""),
+                "법정코드_5자리": fields.get("법정코드_5자리", "")
+            })
 
+        if data:
+            st.write("✅ Airtable에서 데이터를 성공적으로 가져왔습니다.")
+            return pd.DataFrame(data)
+
+    except requests.exceptions.RequestException as e:
+        st.error(f"⚠ Airtable API 요청 실패: {e}")
+        return None  # Airtable 데이터 가져오기 실패 시 None 반환
+
+# ✅ 데이터 로딩 함수 (Airtable → CSV 파일 순서)
 @st.cache_data
 def load_data(uploaded_file):
-    """CSV 파일을 자동으로 불러오는 함수"""
+    """Airtable 데이터를 우선적으로 사용하고, 실패하면 CSV 파일을 사용"""
 
-    # ✅ 1. 사용자가 파일 업로드한 경우 → 업로드된 파일 사용
+    # ✅ 1. Airtable에서 데이터 가져오기 시도
+    df = fetch_airtable_data()
+    if df is not None:
+        return df  # Airtable 데이터가 성공적으로 로드되면 반환
+
+    # ✅ 2. Airtable 데이터 가져오기 실패 시 업로드된 CSV 파일 사용
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file, encoding='utf-8-sig')
-        st.write("📂 업로드된 CSV 파일을 로드했습니다.")
+        st.write("📂 Airtable 로딩 실패, 업로드된 CSV 파일을 대신 사용합니다.")
         return df
 
-    # ✅ 2. 로컬 컴퓨터의 지정된 경로에서 파일 자동 로드
-    elif os.path.exists(LOCAL_CSV_PATH):
-        df = pd.read_csv(LOCAL_CSV_PATH, encoding='utf-8-sig')
-        st.write(f"📂 로컬 파일 자동 로드: {LOCAL_CSV_PATH}")
-        return df
-
-    # ✅ 3. 파일이 없으면 오류 메시지 출력
+    # ✅ 3. CSV 파일도 없으면 오류 메시지 출력
     else:
-        st.error("⚠ 법정동 코드 CSV 파일을 찾을 수 없습니다. 파일을 업로드해 주세요.")
+        st.error("⚠ 데이터 소스를 찾을 수 없습니다. Airtable과 CSV 파일이 모두 없어요.")
         return None
 
 def find_best_match_juridical_code(address, df):
