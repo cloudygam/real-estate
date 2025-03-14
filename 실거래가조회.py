@@ -188,7 +188,7 @@ def get_real_estate_data(lawd_cd, deal_ymd_list, service_key, region, jibun, apt
 
     return pd.DataFrame(all_data) if all_data else None
 
-st.title("법정동 코드 검색 및 아파트 실거래가 조회 프로그램")
+st.title("아파트 실거래가 조회 프로그램")
 
 uploaded_file = st.file_uploader("법정동 코드 CSV 파일을 업로드하세요 (선택 사항)")
 df = fetch_airtable_data()
