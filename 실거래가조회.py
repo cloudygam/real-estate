@@ -22,32 +22,51 @@ airtable_url = f"https://api.airtable.com/v0/{airtable_base_id}/{airtable_table_
 
 
 # ✅ Airtable API 호출 함수 (출력된 데이터에 맞춰 컬럼명 수정)
+# ✅ Airtable API 호출 함수 (전체 데이터 가져오기)
 def fetch_airtable_data():
     headers = {"Authorization": f"Bearer {airtable_api_key}"}
-    try:
-        response = requests.get(airtable_url, headers=headers)
-        response.raise_for_status()
-        records = response.json().get("records", [])
+    all_records = []
+    offset = None
 
-        data = []
-        for record in records:
-            fields = record.get("fields", {})
-            data.append({
-                "법정동명": fields.get("법정동코드", ""),  # ✅ 법정동코드 컬럼 수정
-                "법정코드_5자리": fields.get("법정동명", "")  # ✅ 법정동명 컬럼 수정
-            })
+    while True:
+        params = {}
+        if offset:
+            params["offset"] = offset  # 다음 페이지 가져오기
 
-        if data:
-            st.write("✅ Airtable에서 가져온 원본 데이터:")
-            st.write(records)  # ✅ JSON 원본 데이터 출력
-            st.write("📋 변환된 데이터프레임:")
-            df = pd.DataFrame(data)
-            st.dataframe(df)  # ✅ 변환된 데이터 출력
-            return df
+        response = requests.get(airtable_url, headers=headers, params=params)
+        if response.status_code != 200:
+            st.error(f"⚠ Airtable API 요청 실패: {response.status_code}")
+            return None
 
-    except requests.exceptions.RequestException as e:
-        st.error(f"⚠ Airtable API 요청 실패: {e}")
-        return None  # Airtable 데이터 가져오기 실패 시 None 반환
+        data = response.json()
+        records = data.get("records", [])
+        all_records.extend(records)
+
+        # ✅ `offset`이 있으면 계속 가져오기
+        offset = data.get("offset")
+        if not offset:
+            break  # 모든 데이터 가져왔으면 종료
+
+    # ✅ 총 개수 확인
+    st.write(f"📊 Airtable에서 가져온 총 데이터 개수: {len(all_records)}개")
+
+    # ✅ 변환된 데이터 저장
+    data_list = []
+    for record in all_records:
+        fields = record.get("fields", {})
+        data_list.append({
+            "법정동명": fields.get("법정동코드", ""),  # ✅ 컬럼명 수정
+            "법정코드_5자리": fields.get("법정동명", "")  # ✅ 컬럼명 수정
+        })
+
+    if data_list:
+        df = pd.DataFrame(data_list)
+        st.write("📋 Airtable에서 가져온 데이터:")
+        st.dataframe(df)  # ✅ 최종 데이터 출력
+        return df
+    else:
+        st.error("⚠ Airtable에서 가져온 데이터가 없습니다.")
+        return None
 
 # ✅ 데이터 로딩 함수 (Airtable → CSV 파일 순서)
 @st.cache_data
@@ -172,10 +191,10 @@ def get_real_estate_data(lawd_cd, deal_ymd_list, service_key, region, jibun, apt
 st.title("법정동 코드 검색 및 아파트 실거래가 조회 프로그램")
 
 uploaded_file = st.file_uploader("법정동 코드 CSV 파일을 업로드하세요 (선택 사항)")
-df = load_data(uploaded_file)
+df = fetch_airtable_data()
 
 if df is not None:
-    st.write("📋 최종 로드된 법정동 코드 데이터:")
+    st.write(f"📋 최종 로드된 법정동 코드 데이터 (총 {len(df)}개):")
     st.dataframe(df)
 else:
     st.error("⚠ 법정동 코드 데이터를 가져올 수 없습니다.")
