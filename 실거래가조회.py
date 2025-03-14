@@ -21,7 +21,7 @@ else:
 airtable_url = f"https://api.airtable.com/v0/{airtable_base_id}/{airtable_table_name}"
 
 
-# ✅ Airtable API 호출 함수
+# ✅ Airtable API 호출 함수 (데이터 출력 추가)
 def fetch_airtable_data():
     headers = {"Authorization": f"Bearer {airtable_api_key}"}
     try:
@@ -33,13 +33,17 @@ def fetch_airtable_data():
         for record in records:
             fields = record.get("fields", {})
             data.append({
-                "법정동명": fields.get("법정동명", ""),
-                "법정코드_5자리": fields.get("법정코드_5자리", "")
+                "법정동명": fields.get("법정동명", ""),  # ✅ 컬럼명 확인 필요
+                "법정코드_5자리": fields.get("법정코드_5자리", "")  # ✅ 컬럼명 확인 필요
             })
 
         if data:
-            st.write("✅ Airtable에서 데이터를 성공적으로 가져왔습니다.")
-            return pd.DataFrame(data)
+            st.write("✅ Airtable에서 가져온 원본 데이터:")
+            st.write(records)  # ✅ JSON 원본 데이터 출력
+            st.write("📋 변환된 데이터프레임:")
+            df = pd.DataFrame(data)
+            st.dataframe(df)  # ✅ 변환된 데이터 출력
+            return df
 
     except requests.exceptions.RequestException as e:
         st.error(f"⚠ Airtable API 요청 실패: {e}")
