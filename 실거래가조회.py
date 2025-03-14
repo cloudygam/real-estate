@@ -21,7 +21,7 @@ else:
 airtable_url = f"https://api.airtable.com/v0/{airtable_base_id}/{airtable_table_name}"
 
 
-# ✅ Airtable API 호출 함수 (데이터 출력 추가)
+# ✅ Airtable API 호출 함수 (출력된 데이터에 맞춰 컬럼명 수정)
 def fetch_airtable_data():
     headers = {"Authorization": f"Bearer {airtable_api_key}"}
     try:
@@ -33,8 +33,8 @@ def fetch_airtable_data():
         for record in records:
             fields = record.get("fields", {})
             data.append({
-                "법정동명": fields.get("법정동명", ""),  # ✅ 컬럼명 확인 필요
-                "법정코드_5자리": fields.get("법정코드_5자리", "")  # ✅ 컬럼명 확인 필요
+                "법정동명": fields.get("법정동코드", ""),  # ✅ 법정동코드 컬럼 수정
+                "법정코드_5자리": fields.get("법정동명", "")  # ✅ 법정동명 컬럼 수정
             })
 
         if data:
@@ -171,8 +171,14 @@ def get_real_estate_data(lawd_cd, deal_ymd_list, service_key, region, jibun, apt
 
 st.title("법정동 코드 검색 및 아파트 실거래가 조회 프로그램")
 
-uploaded_file = st.file_uploader("법정동 코드 CSV 파일을 업로드하세요 (선택 사항)", type=["csv"])
+uploaded_file = st.file_uploader("법정동 코드 CSV 파일을 업로드하세요 (선택 사항)")
 df = load_data(uploaded_file)
+
+if df is not None:
+    st.write("📋 최종 로드된 법정동 코드 데이터:")
+    st.dataframe(df)
+else:
+    st.error("⚠ 법정동 코드 데이터를 가져올 수 없습니다.")
 
 address = st.text_input("주소를 입력하세요")
 # 현재 연도와 월을 가져옴
